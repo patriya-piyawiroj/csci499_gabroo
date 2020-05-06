@@ -28,6 +28,10 @@ using google::protobuf::Message, google::protobuf::Any, grpc::CreateChannel,
     warble::ProfileRequest, warble::ProfileReply, func::EventRequest,
     func::EventReply;
 
+// Helper function to find hashtags in a given warble string
+int Hashtag(Database* db, std::string warble_id, std::string warble);
+// Helper function returns warble_ids that contain hashtag
+std::vector<std::string> FindHashtag(Database* db, std::string hashtag);
 // Registers a username that can be later used to login
 bool RegisterUser(Database* db, Any, Any*);
 // Posts a warble to a given account, returns warble ID

@@ -205,3 +205,8 @@ void CLI::Profile(std::string username) {
     LOG(INFO) << "error: " << s.error_message();
   }
 }
+
+void CLI::Stream(std::string hashtag) {
+  std::cout << "test" << std::endl; 
+}
+

@@ -1,5 +1,32 @@
 #include "functions.h"
 
+// Checks if hashtag exists in warble, 
+int Hashtag(Database* db, std::string warble_id, std::string warble) {
+  int num=0;
+  std::istringstream iss(warble);
+  std::vector<std::string> words((std::istream_iterator<std::string>(iss)),
+                                 std::istream_iterator<std::string>());
+  for (std::string word : words) {
+    if (word.at(0) == '#'){
+      db->put("_hashtag_" +  word, warble_id);
+      num++;
+    }
+  }
+  return num;
+}
+
+// Returns warble_ids containing hashtag
+std::vector<std::string> FindHashtag(Database* db, std::string hashtag) {
+  std::vector<std::string> warbles;
+  std::optional<std::vector<std::string>> ids = db->get("_hashtag_" + hashtag);
+  if (ids) {
+      for (std::string id : *ids) {
+        warbles.push_back(id);
+      }
+  }
+  return warbles;
+}
+
 bool RegisterUser(Database* db, Any req, Any* rep) {
   RegisterUserRequest request;
   req.UnpackTo(&request);
@@ -69,6 +96,10 @@ bool Warble(Database* db, Any req, Any* rep) {
   } else {
     LOG(INFO) << "no parent id found " << parent_id;
   }
+
+  // Adds hashtag to list of hashtag if found
+  Hashtag(db, warble_id, w_as_string);
+
   return true;
 }
 
