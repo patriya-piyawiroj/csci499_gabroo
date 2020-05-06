@@ -36,11 +36,11 @@ TEST_F(StreamTest, FindsAllHashtags) {
 
   // Is able to find hashtags from multiple warbles
   std::vector<std::string> expected;
-  EXPECT_EQ(expected, FindHashtag(&db, "#iDontExist"));
+  EXPECT_EQ(expected, FindHashtag(&db, "#greet")); // Substring shouldn't count
   expected.push_back("id2");  
-  EXPECT_EQ(expected, FindHashtag(&db, "#greeting"));
+  EXPECT_EQ(expected, FindHashtag(&db, "#greeting")); // Should find one
   expected.push_back("id3");
-  EXPECT_EQ(expected, FindHashtag(&db, "#hello")); 
+  EXPECT_EQ(expected, FindHashtag(&db, "#hello")); // Should find two
 }
 
 // Tests Stream functionality
