@@ -36,6 +36,7 @@ TEST_F(StreamTest, FindsAllHashtags) {
 
   // Is able to find hashtags from multiple warbles
   std::vector<std::string> expected;
+  EXPECT_EQ(expected, FindHashtag(&db, "#iDontExist"));
   expected.push_back("id2");  
   EXPECT_EQ(expected, FindHashtag(&db, "#greeting"));
   expected.push_back("id3");
@@ -66,9 +67,14 @@ TEST_F(StreamTest, Stream) {
   rep.UnpackTo(&s_rep);
   EXPECT_EQ(s_rep.warbles_size(), 2);
 
+  // Unable to find nonexistent hashtag
+  s_req.set_hashtag("#iDontExist");
+  req.PackFrom(s_req);
+  EXPECT_FALSE(Stream(&db, req, &rep));
 }
 
 int main(int argc, char **argv) {
+  google::InitGoogleLogging(argv[0]);
   testing::InitGoogleTest(&argc,argv);
   return RUN_ALL_TESTS();
 }

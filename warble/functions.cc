@@ -12,7 +12,6 @@ int Hashtag(Database* db, std::string warble_id, std::string warble) {
       num++;
     }
   }
-  LOG(INFO) << "Added " << num << " to hashtags";
   return num;
 }
 
@@ -25,7 +24,7 @@ std::vector<std::string> FindHashtag(Database* db, std::string hashtag) {
         warbles.push_back(id);
       }
   }
-  LOG(INFO) << "Found warble ids";
+  LOG(INFO) << "Found warble ids : " << warbles.size() << " (" << hashtag << ")";
   return warbles;
 }
 
@@ -125,8 +124,7 @@ bool Warble(Database* db, Any req, Any* rep) {
   }
 
   // Adds hashtag to list of hashtag if found
-  Hashtag(db, warble_id, w_as_string);
-
+  Hashtag(db, warble_id, text);
   return true;
 }
 
