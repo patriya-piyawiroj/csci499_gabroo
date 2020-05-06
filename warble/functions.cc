@@ -12,6 +12,7 @@ int Hashtag(Database* db, std::string warble_id, std::string warble) {
       num++;
     }
   }
+  LOG(INFO) << "Added " << num << " to hashtags";
   return num;
 }
 
@@ -24,7 +25,33 @@ std::vector<std::string> FindHashtag(Database* db, std::string hashtag) {
         warbles.push_back(id);
       }
   }
+  LOG(INFO) << "Found warble ids";
   return warbles;
+}
+
+bool Stream(Database* db, Any req, Any* rep) {
+  StreamRequest request;
+  StreamReply reply;
+  req.UnpackTo(&request);
+  std::string hashtag = request.hashtag();
+  std::vector<std::string> ids = FindHashtag(db,hashtag);
+  
+  if (ids.empty()) {
+    LOG(INFO) << "No warbles found for hashtag " << hashtag;
+    return false;
+  }
+
+  while (!ids.empty()){
+     std::string id = ids.back();
+     std::optional<std::vector<std::string>> exists = db->get("_warble_" + id);
+     if (exists) {
+          warble::Warble* w = reply.add_warbles();
+          w->ParseFromString((*exists)[0]);
+     }
+     ids.pop_back();
+  }
+  rep->PackFrom(reply);
+  return true;
 }
 
 bool RegisterUser(Database* db, Any req, Any* rep) {
