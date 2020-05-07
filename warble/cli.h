@@ -43,7 +43,7 @@ class CLI {
  public:
   CLI(std::shared_ptr<ChannelInterface> channel)
       : func_(FuncService::NewStub(channel)),
-        functions_({"register_user", "warble", "follow", "read", "profile"}) {
+        functions_({"register_user", "warble", "follow", "read", "profile", "stream"}) {
     RegisterFunctions();
   };
   // See functions.h for more details about these functions

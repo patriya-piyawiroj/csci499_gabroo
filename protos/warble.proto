@@ -59,3 +59,11 @@ message ProfileReply {
   repeated string followers = 1;
   repeated string following = 2;
 }
+
+message StreamRequest {
+  string hashtag = 1;
+}
+
+message StreamReply {
+  repeated Warble warbles = 1;
+}
