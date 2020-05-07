@@ -1,5 +1,58 @@
 #include "functions.h"
 
+// Checks if hashtag exists in warble, 
+int Hashtag(Database* db, std::string warble_id, std::string warble) {
+  int num=0;
+  std::istringstream iss(warble);
+  std::vector<std::string> words((std::istream_iterator<std::string>(iss)),
+                                 std::istream_iterator<std::string>());
+  for (std::string word : words) {
+    if (word.at(0) == '#'){
+      db->put("_hashtag_" +  word, warble_id);
+      num++;
+    }
+  }
+  return num;
+}
+
+// Returns warble_ids containing hashtag
+std::vector<std::string> FindHashtag(Database* db, std::string hashtag) {
+  std::vector<std::string> warbles;
+  std::optional<std::vector<std::string>> ids = db->get("_hashtag_" + hashtag);
+  if (ids) {
+      for (std::string id : *ids) {
+        warbles.push_back(id);
+      }
+  }
+  LOG(INFO) << "Found warble ids : " << warbles.size() << " (" << hashtag << ")";
+  return warbles;
+}
+
+bool Stream(Database* db, Any req, Any* rep) {
+  StreamRequest request;
+  StreamReply reply;
+  req.UnpackTo(&request);
+  std::string hashtag = request.hashtag();
+  std::vector<std::string> ids = FindHashtag(db,hashtag);
+  
+  if (ids.empty()) {
+    LOG(INFO) << "No warbles found for hashtag " << hashtag;
+    return false;
+  }
+
+  while (!ids.empty()){
+     std::string id = ids.back();
+     std::optional<std::vector<std::string>> exists = db->get("_warble_" + id);
+     if (exists) {
+          warble::Warble* w = reply.add_warbles();
+          w->ParseFromString((*exists)[0]);
+     }
+     ids.pop_back();
+  }
+  rep->PackFrom(reply);
+  return true;
+}
+
 bool RegisterUser(Database* db, Any req, Any* rep) {
   RegisterUserRequest request;
   req.UnpackTo(&request);
@@ -69,6 +122,9 @@ bool Warble(Database* db, Any req, Any* rep) {
   } else {
     LOG(INFO) << "no parent id found " << parent_id;
   }
+
+  // Adds hashtag to list of hashtag if found
+  Hashtag(db, warble_id, text);
   return true;
 }
 

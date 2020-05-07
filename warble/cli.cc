@@ -13,7 +13,8 @@ using grpc::ClientContext, grpc::Status, google::protobuf::Any,
     warble::RegisterUserRequest, warble::RegisterUserReply,
     warble::WarbleRequest, warble::WarbleReply, warble::FollowRequest,
     warble::FollowReply, warble::ReadRequest, warble::ReadReply,
-    warble::ProfileRequest, warble::ProfileReply;
+    warble::ProfileRequest, warble::ProfileReply, warble::StreamRequest,
+    warble::StreamReply;
 
 void CLI::RegisterFunctions() {
   for (size_t i = 0; i < functions_.size(); ++i) {
@@ -205,3 +206,36 @@ void CLI::Profile(std::string username) {
     LOG(INFO) << "error: " << s.error_message();
   }
 }
+
+void CLI::Stream(std::string hashtag) {
+  ClientContext context;
+  StreamRequest r_req;
+  r_req.set_hashtag(hashtag);
+  EventRequest req;
+  int event_type = find_event_type_("stream");
+  req.set_event_type(event_type);
+  Any rx_payload, tx_payload;
+  tx_payload.PackFrom(r_req);
+  *(req.mutable_payload()) = tx_payload;
+  EventReply rep;
+  Status s = func_->event(&context, req, &rep);
+  if ((s.ok())) {
+    rx_payload = rep.payload();
+    StreamReply r_rep;
+    rx_payload.UnpackTo(&r_rep);
+    size_t num_warbles = r_rep.warbles_size();
+    for (size_t i = 0; i < num_warbles; ++i) {
+      warble::Warble w = r_rep.warbles(i);
+      std::string user = w.username(), text = w.text(), id = w.id();
+      time_t t = w.timestamp().seconds();
+      std::cout << "(id " << id << ")\n";
+      std::cout << asctime(gmtime(&t));
+      std::cout << "[" << user << "]:\t" << text << "\n";
+      std::cout << std::endl;
+    }
+  } else {
+    std::cout << "No warbles found" << std::endl;
+  }
+}
+
+

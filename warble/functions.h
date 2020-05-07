@@ -26,8 +26,14 @@ using google::protobuf::Message, google::protobuf::Any, grpc::CreateChannel,
     warble::WarbleRequest, warble::WarbleReply, warble::FollowRequest,
     warble::FollowReply, warble::ReadRequest, warble::ReadReply,
     warble::ProfileRequest, warble::ProfileReply, func::EventRequest,
-    func::EventReply;
+    func::EventReply, warble::StreamRequest, warble::StreamReply;
 
+// Helper function to find hashtags in a given warble string
+int Hashtag(Database* db, std::string warble_id, std::string warble);
+// Helper function returns warble_ids that contain hashtag
+std::vector<std::string> FindHashtag(Database* db, std::string hashtag);
+// Reads a stream of warbles containing a given hashtag
+bool Stream(Database* db, Any req, Any* rep);
 // Registers a username that can be later used to login
 bool RegisterUser(Database* db, Any, Any*);
 // Posts a warble to a given account, returns warble ID
@@ -46,5 +52,6 @@ static std::unordered_map<std::string, fn> funcs({{"register_user",
                                                   {"warble", Warble},
                                                   {"follow", Follow},
                                                   {"read", Read},
-                                                  {"profile", Profile}});
+                                                  {"profile", Profile},
+						  {"stream", Stream}});
 #endif  // !FUNCTIONS_H

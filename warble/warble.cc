@@ -12,6 +12,7 @@
 #include "cli.h"
 #include "gflags/gflags.h"
 
+DEFINE_string(stream, "", "Streams all new warbles containing 'hashtag'");
 DEFINE_string(registeruser, "", "Registers the given username");
 DEFINE_string(user, "", "Logs in as the given username");
 DEFINE_string(warble, "", "Creates a new warble with the given text");
@@ -28,7 +29,7 @@ int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   std::string address("0.0.0.0:50000");
   CLI cli(CreateChannel(address, InsecureChannelCredentials()));
-  if (FLAGS_registeruser == "" && FLAGS_user == "") {
+  if (FLAGS_registeruser == "" && FLAGS_user == "" && FLAGS_stream == "") {
     std::cout << "Must specify either --registeruser (to sign up) or --user "
                  "(to log in)."
               << std::endl;
@@ -40,7 +41,10 @@ int main(int argc, char** argv) {
   } else {
     if (FLAGS_registeruser != "") {
       cli.RegisterUser(FLAGS_registeruser);
+    } else if (FLAGS_stream != "") {
+      cli.Stream(FLAGS_stream);
     } else {
+std::cout << "NOT FOUND" << std::endl;
       if (FLAGS_user == "") {
         std::cout << "Must login with the --user flag." << std::endl;
         return 2;

@@ -8,6 +8,7 @@
 
         The following options are supported:
                 --registeruser <username>			Registers the
+		--stream <hashtag>				Streams all new warbles containing 'hashtag'
   given username
                 --user <username>
   Logs in as the given username
@@ -42,7 +43,7 @@ class CLI {
  public:
   CLI(std::shared_ptr<ChannelInterface> channel)
       : func_(FuncService::NewStub(channel)),
-        functions_({"register_user", "warble", "follow", "read", "profile"}) {
+        functions_({"register_user", "warble", "follow", "read", "profile", "stream"}) {
     RegisterFunctions();
   };
   // See functions.h for more details about these functions
@@ -52,6 +53,7 @@ class CLI {
   void Follow(std::string, std::string);
   void Read(std::string);
   void Profile(std::string);
+  void Stream(std::string);
 
  private:
   int find_event_type_(std::string);
